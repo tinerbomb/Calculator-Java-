@@ -1,0 +1,139 @@
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Scanner sc = new Scanner(System.in);
+        String a = sc.nextLine();
+        System.out.println(calc(a));
+    }
+
+    enum NumberType {
+        ARABIC, ROMAN
+    }
+
+    static String[] romanNumbers = new String[]{"O", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
+            "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI", "XXII", "XXIII", "XXIV",
+            "XXV", "XXVI", "XXVII", "XXVIII", "XXIX", "XXX", "XXXI", "XXXII", "XXXIII", "XXXIV", "XXXV", "XXXVI",
+            "XXXVII", "XXXVIII", "XXXIX", "XL", "XLI", "XLII", "XLIII", "XLIV", "XLV", "XLVI", "XLVII", "XLVIII",
+            "XLIX", "L", "LI", "LII", "LIII", "LIV", "LV", "LVI", "LVII", "LVIII", "LIX", "LX", "LXI", "LXII", "LXIII",
+            "LXIV", "LXV", "LXVI", "LXVII", "LXVIII", "LXIX", "LXX", "LXXI", "LXXII", "LXXIII", "LXXIV", "LXXV",
+            "LXXVI", "LXXVII", "LXXVIII", "LXXIX", "LXXX", "LXXXI", "LXXXII", "LXXXIII", "LXXXIV", "LXXXV", "LXXXVI",
+            "LXXXVII", "LXXXVIII", "LXXXIX", "XC", "XCI", "XCII", "XCIII", "XCIV", "XCV", "XCVI", "XCVII", "XCVIII",
+            "XCIX", "C"};
+
+    static NumberType checkType(String element) {
+        boolean isArabic = true;
+        for (int i = 0; i < element.length(); ++i) {
+            if (!Character.isDigit(element.charAt(i))) {
+                isArabic = false;
+                break;
+            }
+
+        }
+
+        if (isArabic) {
+            return NumberType.ARABIC;
+        }
+
+        boolean isRoman = false;
+        for (int i = 1; i <= 10; ++i) {
+            if (!element.equals(romanNumbers[i])) {
+                isRoman = true;
+                break;
+            }
+        }
+
+        if (isRoman) {
+            return NumberType.ROMAN;
+
+        } else {
+
+            throw new RuntimeException("throws exception/неизвестный тип данных");
+        }
+    }
+
+    static int arabicToInt(String arabicElement) {
+        return Integer.parseInt(arabicElement);
+    }
+
+    public static int romanToInt(String romanElement) {
+        for (int i = 1; i <= 10; ++i) {
+            if (romanElement.equals(romanNumbers[i])) {
+                return i;
+
+            }
+        }
+        throw new IllegalArgumentException("throw Exception // не верно указан аргумент метода");
+    }
+
+    public static String calc(String input) throws Exception {
+        String[] splitedInput = input.split(" ");
+
+        int firstNumber = 0;
+        int secondNumber = 0;
+
+
+
+
+        if (splitedInput.length > 3) {
+            throw new Exception("throw Exception //т.к. формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
+        }
+        if (splitedInput.length < 3) {
+            throw new Exception("throws Exception //т.к. строка не является математической операцией");
+        }
+        NumberType typeFirstNumber = checkType(splitedInput[0]);
+        NumberType typeSecondNumber = checkType(splitedInput[2]);
+        if (typeFirstNumber != typeSecondNumber) {
+            throw new Exception("throws Exception //т.к. используются одновременно разные системы счисления");
+        }
+        if (typeFirstNumber == NumberType.ROMAN) {
+            firstNumber = romanToInt(splitedInput[0]);
+            secondNumber = romanToInt(splitedInput[2]);
+        }
+        if (typeFirstNumber == NumberType.ARABIC) {
+            firstNumber = arabicToInt(splitedInput[0]);
+            secondNumber = arabicToInt(splitedInput[2]);
+        }
+
+        if (firstNumber >= 1 && firstNumber <= 10 && secondNumber >= 1 && secondNumber <= 10) {
+            switch (splitedInput[1]) {
+                case "+" -> {
+                    if (typeFirstNumber == NumberType.ARABIC) {
+                        return String.valueOf(firstNumber + secondNumber);
+                    } else {
+                        return romanNumbers[firstNumber + secondNumber];
+                    }
+                }
+                case "-" -> {
+                    if (typeFirstNumber == NumberType.ROMAN) {
+                        if (secondNumber > firstNumber) {
+                            throw new Exception("throws Exception //т.к. в римской системе нет отрицательных чисел");
+                        }
+                        return romanNumbers[firstNumber - secondNumber];
+                    } else {
+                        return String.valueOf(firstNumber - secondNumber);
+                    }
+                }
+                case "*" -> {
+                    if (typeFirstNumber == NumberType.ROMAN) {
+                        return romanNumbers[firstNumber * secondNumber];
+                    } else {
+                        return String.valueOf(firstNumber * secondNumber);
+                    }
+                }
+                case "/" -> {
+                    if (typeFirstNumber == NumberType.ROMAN) {
+                        return romanNumbers[firstNumber / secondNumber];
+                    } else {
+                        return String.valueOf(firstNumber / secondNumber);
+                    }
+                }
+                default -> throw new Exception("throws Exception //т.к. Неизвестная операция");
+            }
+
+        } else {
+            throw new Exception("throws Exception //т.к. Число не соответствует условию задачи");
+        }
+
+    }
+}
